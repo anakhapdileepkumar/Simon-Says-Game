@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Memory Game</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #222;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    #gameBoard {
+      display: grid;
+      grid-template-columns: repeat(2, 150px);
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .btn {
+      width: 150px;
+      height: 150px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.15s, transform 0.08s;
+    }
+    .red { background: #e74c3c; }
+    .blue { background: #3498db; }
+    .green { background: #2ecc71; }
+    .yellow { background: #f1c40f; }
+    .active {
+      opacity: 1;
+      transform: scale(1.03);
+      box-shadow: 0 0 25px rgba(255,255,255,0.3);
+    }
+    #status {
+      margin-top: 18px;
+      font-size: 18px;
+    }
+    #startBtn {
+      margin-top: 12px;
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* responsive */
+    @media (max-width: 480px) {
+      #gameBoard { grid-template-columns: repeat(2, 120px); gap: 12px; }
+      .btn { width: 120px; height: 120px; border-radius: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Game</h1>
+
+  <div id="gameBoard">
+    <button class="btn red" data-color="red" aria-label="red"></button>
+    <button class="btn blue" data-color="blue" aria-label="blue"></button>
+    <button class="btn green" data-color="green" aria-label="green"></button>
+    <button class="btn yellow" data-color="yellow" aria-label="yellow"></button>
+  </div>
+
+  <div id="status">Press Start to Play</div>
+  <button id="startBtn">Start</button>
+
+  <script>
+    // run when DOM is ready (safer in editors / linters)
+    document.addEventListener('DOMContentLoaded', function () {
+      var colors = ['red','blue','green','yellow'];
+      var pattern = [];
+      var playerPattern = [];
+      var level = 0;
+      var waitingForInput = false;
+
+      var buttons = document.querySelectorAll('.btn');
+      var statusDisplay = document.getElementById('status');
+      var startBtn = document.getElementById('startBtn');
+
+      console.log('Memory game script loaded. Buttons found:', buttons.length);
+
+      function lightUp(color) {
+        var sel = '.btn.' + color;
+        var btn = document.querySelector(sel);
+        if (!btn) return;
+        btn.classList.add('active');
+        setTimeout(function() { btn.classList.remove('active'); }, 500);
+      }
+
+      function playPattern() {
+        waitingForInput = false;
+        playerPattern = [];
+        var i = 0;
+        if (pattern.length === 0) {
+          // nothing to play (should not happen normally)
+          waitingForInput = true;
+          return;
+        }
+        var interval = setInterval(function() {
+          lightUp(pattern[i]);
+          i++;
+          if (i >= pattern.length) {
+            clearInterval(interval);
+            setTimeout(function() {
+              waitingForInput = true;
+              statusDisplay.textContent = 'Your turn — Level ' + level;
+            }, 300);
+          }
+        }, 800);
+      }
+
+      function nextRound() {
+        level = level + 1;
+        statusDisplay.textContent = 'Level ' + level + ' - Watch the pattern';
+        var idx = Math.floor(Math.random() * colors.length);
+        pattern.push(colors[idx]);
+        setTimeout(playPattern, 600);
+      }
+
+      function handleClick(color) {
+        if (!waitingForInput) return;
+        playerPattern.push(color);
+        lightUp(color);
+        var idx = playerPattern.length - 1;
+        if (playerPattern[idx] !== pattern[idx]) {
+          statusDisplay.textContent = 'Wrong! Game Over at level ' + level + '. Press Start to try again.';
+          waitingForInput = false;
+          console.log('Wrong click. expected:', pattern[idx], 'got:', playerPattern[idx]);
+          return;
+        }
+        if (playerPattern.length === pattern.length) {
+          waitingForInput = false;
+          statusDisplay.textContent = 'Correct! Get ready for next level...';
+          setTimeout(nextRound, 1000);
+        }
+      }
+
+      // start button
+      startBtn.addEventListener('click', function() {
+        pattern = [];
+        playerPattern = [];
+        level = 0;
+        waitingForInput = false;
+        statusDisplay.textContent = 'Starting...';
+        setTimeout(nextRound, 600);
+      });
+
+      // attach listeners to color buttons
+      buttons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var c = btn.getAttribute('data-color');
+          handleClick(c);
+        });
+      });
+    }); // end DOMContentLoaded
+  </script>
+</body>
+</html>
