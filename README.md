@@ -18,11 +18,11 @@ Each round, the sequence increases by one color. If the player clicks the wrong 
 - Option to restart after losing.
 
 ## 📂 Project Structure
-── index.html # Main HTML file
-── style.css # Styling for the game
-── script.js # Game logic
-── sounds/ # (Optional) Sound files for each color
-── README.md # Game instructions
+-  index.html # Main HTML file
+-  style.css # Styling for the game
+-  script.js # Game logic
+-  sounds/ # (Optional) Sound files for each color
+-  README.md # Game instructions
 
 
 ## 🚀 How to Run
